@@ -9,6 +9,10 @@ import (
 	"github.com/unidoc/unipdf/v3/model"
 )
 
+func CLI() *PDF {
+	return &PDF{}
+}
+
 type PDF struct {
 	clientInitialized bool
 }
@@ -40,26 +44,27 @@ func (pdf *PDF) Node() *command.Node {
 		"rotate": command.SerialNodes(
 			command.FileNode("inputFile"),
 			command.FileNode("outputFile"),
-			command.ExecutorNode(pdf.rotate),
+			command.ExecutorNode(pdf.cliRotate),
 		),
 	}, nil, true)
 }
 
-func (pdf *PDF) rotate(output command.Output, data *command.Data) error {
+// cliRotate is a wrapper around pdf.Rotate that can be used as a CLI executor node.
+func (pdf *PDF) cliRotate(output command.Output, data *command.Data) error {
 	if err := pdf.initializeClient(); err != nil {
 		return output.Stderrf("failed to initialize pdf client: %v", err)
 	}
 	inputPath := data.String("inputFile")
 	outputPath := data.String("outputFile")
 
-	if err := rotatePdf(inputPath, outputPath); err != nil {
+	if err := pdf.Rotate(inputPath, outputPath); err != nil {
 		return output.Stderrf("failed to rotate pdf: %v", err)
 	}
 	return nil
 }
 
 // Rotate all pages by 90 degrees.
-func rotatePdf(inputPath string, outputPath string) error {
+func (pdf *PDF) Rotate(inputPath string, outputPath string) error {
 	pdfReader, f, err := model.NewPdfReaderFromFile(inputPath, nil)
 	if err != nil {
 		return err
