@@ -32,7 +32,7 @@ func (*PDF) Load(jsn string) error { return nil }
 func (*PDF) Changed() bool         { return false }
 func (*PDF) Setup() []string       { return nil }
 func (*PDF) Name() string {
-	return "pdf"
+	return "gdf"
 }
 
 func (pdf *PDF) Node() *command.Node {
@@ -46,6 +46,9 @@ func (pdf *PDF) Node() *command.Node {
 }
 
 func (pdf *PDF) rotate(output command.Output, data *command.Data) error {
+	if err := pdf.initializeClient(); err != nil {
+		return output.Errorf("failed to initialize pdf client: %v", err)
+	}
 	inputPath := data.String("inputFile")
 	outputPath := data.String("outputFile")
 
