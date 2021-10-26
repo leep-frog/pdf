@@ -24,8 +24,9 @@ func (pdf *PDF) initializeClient() error {
 
 	// Make sure to load your metered License API key prior to using the library.
 	// If you need a key, you can sign up and create a free one at https://cloud.unidoc.io
-	if err := license.SetMeteredKey(os.Getenv(`UNIDOC_LICENSE_API_KEY`)); err != nil {
-		return fmt.Errorf("failed to load license: %v", err)
+	key := os.Getenv(`UNIDOC_LICENSE_API_KEY`)
+	if err := license.SetMeteredKey(key); err != nil {
+		return fmt.Errorf("failed to load license (%s): %v", key, err)
 	}
 
 	pdf.clientInitialized = true
