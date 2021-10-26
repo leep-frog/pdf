@@ -59,6 +59,8 @@ func (pdf *PDF) cliRotate(output command.Output, data *command.Data) error {
 	outputPath := data.String("outputFile")
 
 	var degrees int64
+	// TODO: command package: argument type oneof;
+	// provide map[value]func? or just []value?
 	switch data.String("direction") {
 	case "right":
 		degrees = 90
@@ -66,6 +68,8 @@ func (pdf *PDF) cliRotate(output command.Output, data *command.Data) error {
 		degrees = 180
 	case "left":
 		degrees = 270
+	default:
+		return output.Stderr("direction must be either right, left, or around")
 	}
 
 	if err := pdf.Rotate(degrees, inputPath, outputPath); err != nil {
@@ -86,6 +90,8 @@ func (pdf *PDF) Rotate(degrees int64, inputPath string, outputPath string) error
 	if err != nil {
 		return nil
 	}
+
+	f.Close()
 
 	// Rotate all pages by the provided number of degrees.
 	err = pdfWriter.SetRotation(degrees)
