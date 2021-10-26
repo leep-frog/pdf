@@ -24,9 +24,8 @@ func (pdf *PDF) initializeClient() error {
 
 	// Make sure to load your metered License API key prior to using the library.
 	// If you need a key, you can sign up and create a free one at https://cloud.unidoc.io
-	key := os.Getenv(`UNIDOC_LICENSE_API_KEY`)
-	if err := license.SetMeteredKey(key); err != nil {
-		return fmt.Errorf("failed to load license (%s): %v", key, err)
+	if err := license.SetMeteredKey(os.Getenv(`UNIDOC_LICENSE_API_KEY`)); err != nil {
+		return fmt.Errorf("failed to load license: %v", err)
 	}
 
 	pdf.clientInitialized = true
@@ -45,6 +44,7 @@ func (pdf *PDF) Node() *command.Node {
 		"rotate": command.SerialNodes(
 			command.FileNode("inputFile"),
 			command.FileNode("outputFile"),
+			command.StringNode("direction", command.SimpleCompletor("left", "right", "around")),
 			command.ExecutorNode(pdf.cliRotate),
 		),
 	}, nil, true)
@@ -58,14 +58,24 @@ func (pdf *PDF) cliRotate(output command.Output, data *command.Data) error {
 	inputPath := data.String("inputFile")
 	outputPath := data.String("outputFile")
 
-	if err := pdf.Rotate(inputPath, outputPath); err != nil {
+	var degrees int64
+	switch data.String("direction") {
+	case "right":
+		degrees = 90
+	case "around":
+		degrees = 180
+	case "left":
+		degrees = 270
+	}
+
+	if err := pdf.Rotate(degrees, inputPath, outputPath); err != nil {
 		return output.Stderrf("failed to rotate pdf: %v", err)
 	}
 	return nil
 }
 
-// Rotate all pages by 90 degrees.
-func (pdf *PDF) Rotate(inputPath string, outputPath string) error {
+// Rotate all pages by n degrees
+func (pdf *PDF) Rotate(degrees int64, inputPath string, outputPath string) error {
 	pdfReader, f, err := model.NewPdfReaderFromFile(inputPath, nil)
 	if err != nil {
 		return err
@@ -77,8 +87,8 @@ func (pdf *PDF) Rotate(inputPath string, outputPath string) error {
 		return nil
 	}
 
-	// Rotate all page 90 degrees.
-	err = pdfWriter.SetRotation(90)
+	// Rotate all pages by the provided number of degrees.
+	err = pdfWriter.SetRotation(int(degrees))
 	if err != nil {
 		return nil
 	}
