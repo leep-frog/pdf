@@ -88,7 +88,7 @@ func (pdf *PDF) Rotate(degrees int64, inputPath string, outputPath string) error
 	}
 
 	// Rotate all pages by the provided number of degrees.
-	err = pdfWriter.SetRotation(int(degrees))
+	err = pdfWriter.SetRotation(degrees)
 	if err != nil {
 		return nil
 	}
