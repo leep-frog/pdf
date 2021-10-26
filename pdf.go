@@ -47,7 +47,7 @@ func (pdf *PDF) Node() *command.Node {
 
 func (pdf *PDF) rotate(output command.Output, data *command.Data) error {
 	if err := pdf.initializeClient(); err != nil {
-		return output.Errorf("failed to initialize pdf client: %v", err)
+		return output.Stderrf("failed to initialize pdf client: %v", err)
 	}
 	inputPath := data.String("inputFile")
 	outputPath := data.String("outputFile")
