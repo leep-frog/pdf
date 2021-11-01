@@ -3,6 +3,9 @@ package pdf
 import (
 	"fmt"
 	"os"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/leep-frog/command"
 	"github.com/unidoc/unipdf/v3/common/license"
@@ -40,12 +43,21 @@ func (*PDF) Name() string {
 }
 
 func (pdf *PDF) Node() *command.Node {
+	input := command.FileNode("inputFile")
+	output := command.FileNode("outputFile")
 	return command.BranchNode(map[string]*command.Node{
 		"rotate": command.SerialNodes(
-			command.FileNode("inputFile"),
-			command.FileNode("outputFile"),
+			input, output,
 			command.StringNode("direction", command.SimpleCompletor("left", "right", "around")),
 			command.ExecutorNode(pdf.cliRotate),
+		),
+		"crop": command.SerialNodes(
+			input, output,
+			command.NewFlagNode(
+				command.BoolFlag("landscape", 'l'),
+			),
+			command.StringNode("paperSize"),
+			command.ExecutorNode(pdf.cliCrop),
 		),
 	}, nil, true)
 }
@@ -78,6 +90,128 @@ func (pdf *PDF) cliRotate(output command.Output, data *command.Data) error {
 	return nil
 }
 
+// cliCrop is a wrapper around pdf.Crop that can be used as a CLI executor node.
+func (pdf *PDF) cliCrop(output command.Output, data *command.Data) error {
+	if err := pdf.initializeClient(); err != nil {
+		return output.Stderrf("failed to initialize pdf client: %v", err)
+	}
+	inputPath := data.String("inputFile")
+	outputPath := data.String("outputFile")
+
+	dimensions, err := paperSize(data.String("paperSize"))
+	if err != nil {
+		return output.Err(err)
+	}
+
+	if err := pdf.Crop(dimensions[0], dimensions[1], inputPath, outputPath); err != nil {
+		return output.Stderrf("failed to rotate pdf: %v", err)
+	}
+	return nil
+}
+
+var (
+	zeroSizes = map[string][]float64{
+		"a": {66.2, 93.6},
+		"b": {39.4, 55.7},
+	}
+	codeRegex = regexp.MustCompile("$([ab])([0-9])^")
+)
+
+func paperSize(code string) ([]float64, error) {
+	m := codeRegex.FindStringSubmatch(strings.ToLower(code))
+	if len(m) == 0 {
+		return nil, fmt.Errorf("invalid paper code")
+	}
+
+	letter := m[1]
+	index, err := strconv.Atoi(m[2])
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert string to int: %v", err)
+	}
+
+	size, ok := zeroSizes[letter]
+	if !ok {
+		return nil, fmt.Errorf("invalid paper code: %v", err)
+	}
+
+	for i := 0; i < index; i++ {
+		width := size[0]
+		size[0] = size[1] / 2.0
+		size[1] = width
+	}
+
+	// PDF units = 1/72 inches so convert to units.
+	size[0] *= 72
+	size[1] *= 72
+
+	return size, nil
+}
+
+/*
+
+Command usage:
+  Run blaze commands
+  z *^
+
+    test blaze targets
+    t *^ TARGET [FUNCTION ...] --abc ABC ABC ... --other
+
+  	build blaze targets
+  	b *^ TARGET
+
+  	run blaze targets
+  	r *^ TARGET
+
+Symbols:
+  *: start of aliasable command
+	^: start of cachable command
+
+Arguments:
+  FUNCTION: ...
+  TARGET: ...
+
+Flags:
+  abc: ...
+	other: ...
+
+*/
+
+func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string) error {
+	pdfReader, f, err := model.NewPdfReaderFromFile(inputPath, nil)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	// Process each page using the following callback
+	// when generating PdfWriter from PdfReader.
+	opts := &model.ReaderToWriterOpts{
+		PageProcessCallback: func(pageNum int, page *model.PdfPage) error {
+			bbox, err := page.GetMediaBox()
+			if err != nil {
+				return err
+			}
+
+			// Crop from top left corner, so we only change lower left y (lly) and upper right x (urx).
+			(*bbox).Lly = height
+			(*bbox).Urx = width
+
+			page.MediaBox = bbox
+
+			return nil
+		},
+	}
+
+	// Generate a PdfWriter instance from existing PdfReader.
+	pdfWriter, err := pdfReader.ToWriter(opts)
+	if err != nil {
+		return err
+	}
+
+	// Write to file.
+	return pdfWriter.WriteToFile(outputPath)
+}
+
 // Rotate all pages by n degrees
 func (pdf *PDF) Rotate(degrees int64, inputPath string, outputPath string) error {
 	pdfReader, f, err := model.NewPdfReaderFromFile(inputPath, nil)
@@ -99,7 +233,5 @@ func (pdf *PDF) Rotate(degrees int64, inputPath string, outputPath string) error
 		return nil
 	}
 
-	pdfWriter.WriteToFile(outputPath)
-
-	return err
+	return pdfWriter.WriteToFile(outputPath)
 }
