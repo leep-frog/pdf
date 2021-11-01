@@ -215,8 +215,8 @@ func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string)
 			//(*bbox).Urx = width
 			fmt.Println((*bbox), (*bbox).Llx, (*bbox).Llx, (*bbox).Urx, (*bbox).Ury)
 			fmt.Println(height, width)
-			(*bbox).Llx = 300
-			(*bbox).Lly = 300
+			(*bbox).Llx = -300
+			(*bbox).Lly = -300
 
 			/*// Zoom in on the page middle, with a scaled width and height.
 			width := (*bbox).Urx - (*bbox).Llx
