@@ -114,10 +114,17 @@ var (
 		"a": {33.1, 46.8},
 		"b": {39.4, 55.7},
 	}
+	keywordSizes = map[string][]float64{
+		"letter": {8.5, 11},
+	}
 	codeRegex = regexp.MustCompile("^([ab])([0-9])$")
 )
 
 func paperSize(code string) ([]float64, error) {
+	if size, ok := keywordSizes[code]; ok {
+		return size, nil
+	}
+
 	m := codeRegex.FindStringSubmatch(strings.ToLower(code))
 	if len(m) == 0 {
 		return nil, fmt.Errorf("invalid paper code: %q", code)
@@ -176,6 +183,7 @@ Flags:
 
 */
 
+// Example: https://unidoc.io/unipdf-examples/crop-page-content-pdf/
 func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string) error {
 	pdfReader, f, err := model.NewPdfReaderFromFile(inputPath, nil)
 	if err != nil {
@@ -183,26 +191,6 @@ func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string)
 	}
 	defer f.Close()
 
-	// Process each page using the following callback
-	// when generating PdfWriter from PdfReader.
-	/*opts := &model.ReaderToWriterOpts{
-		PageProcessCallback: func(pageNum int, page *model.PdfPage) error {
-			bbox, err := page.GetMediaBox()
-			if err != nil {
-				return err
-			}
-
-			// Crop from top left corner, so we only change lower left y (lly) and upper right x (urx).
-			(*bbox).Lly = height
-			(*bbox).Urx = width
-
-			page.MediaBox = bbox
-
-			return nil
-		},
-	}*/
-	percentage := 50
-	_ = percentage
 	opts := &model.ReaderToWriterOpts{
 		PageProcessCallback: func(pageNum int, page *model.PdfPage) error {
 			bbox, err := page.GetMediaBox()
@@ -213,17 +201,6 @@ func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string)
 			// Crop from top left corner, so we only change lower left y (lly) and upper right x (urx).
 			bbox.Lly = bbox.Ury - height
 			bbox.Urx = bbox.Llx + width
-			fmt.Println((*bbox))
-
-			/*// Zoom in on the page middle, with a scaled width and height.
-			width := (*bbox).Urx - (*bbox).Llx
-			height := (*bbox).Ury - (*bbox).Lly
-			newWidth := width * float64(percentage) / 100.0
-			newHeight := height * float64(percentage) / 100.0
-			(*bbox).Llx += newWidth / 2
-			(*bbox).Lly += newHeight / 2
-			(*bbox).Urx -= newWidth / 2
-			(*bbox).Ury -= newHeight / 2*/
 
 			page.MediaBox = bbox
 			return nil
