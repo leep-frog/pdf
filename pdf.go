@@ -111,7 +111,7 @@ func (pdf *PDF) cliCrop(output command.Output, data *command.Data) error {
 
 var (
 	zeroSizes = map[string][]float64{
-		"a": {66.2, 93.6},
+		"a": {33.1, 46.8},
 		"b": {39.4, 55.7},
 	}
 	codeRegex = regexp.MustCompile("^([ab])([0-9])$")
@@ -211,12 +211,8 @@ func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string)
 			}
 
 			// Crop from top left corner, so we only change lower left y (lly) and upper right x (urx).
-			//(*bbox).Ury = height
-			//(*bbox).Urx = width
-			fmt.Println((*bbox), (*bbox).Llx, (*bbox).Llx, (*bbox).Urx, (*bbox).Ury)
-			fmt.Println(height, width)
-			(*bbox).Llx = -300
-			(*bbox).Lly = -300
+			bbox.Lly = bbox.Ury - height
+			bbox.Urx = bbox.Llx + width
 
 			/*// Zoom in on the page middle, with a scaled width and height.
 			width := (*bbox).Urx - (*bbox).Llx
