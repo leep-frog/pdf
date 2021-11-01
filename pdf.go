@@ -122,7 +122,7 @@ var (
 
 func paperSize(code string) ([]float64, error) {
 	if size, ok := keywordSizes[code]; ok {
-		return size, nil
+		return []float64{size[0] * 72, size[1] * 72}, nil
 	}
 
 	m := codeRegex.FindStringSubmatch(strings.ToLower(code))
