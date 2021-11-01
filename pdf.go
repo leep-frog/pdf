@@ -211,7 +211,7 @@ func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string)
 			}
 
 			// Crop from top left corner, so we only change lower left y (lly) and upper right x (urx).
-			(*bbox).Lly = height
+			//(*bbox).Lly = height
 			//(*bbox).Urx = width
 
 			/*// Zoom in on the page middle, with a scaled width and height.
