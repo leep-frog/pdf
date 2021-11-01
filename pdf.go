@@ -104,7 +104,7 @@ func (pdf *PDF) cliCrop(output command.Output, data *command.Data) error {
 	}
 
 	if err := pdf.Crop(dimensions[0], dimensions[1], inputPath, outputPath); err != nil {
-		return output.Stderrf("failed to rotate pdf: %v", err)
+		return output.Stderrf("failed to crop pdf: %v", err)
 	}
 	return nil
 }
@@ -185,7 +185,7 @@ func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string)
 
 	// Process each page using the following callback
 	// when generating PdfWriter from PdfReader.
-	opts := &model.ReaderToWriterOpts{
+	/*opts := &model.ReaderToWriterOpts{
 		PageProcessCallback: func(pageNum int, page *model.PdfPage) error {
 			bbox, err := page.GetMediaBox()
 			if err != nil {
@@ -195,6 +195,29 @@ func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string)
 			// Crop from top left corner, so we only change lower left y (lly) and upper right x (urx).
 			(*bbox).Lly = height
 			(*bbox).Urx = width
+
+			page.MediaBox = bbox
+
+			return nil
+		},
+	}*/
+	percentage := 50
+	opts := &model.ReaderToWriterOpts{
+		PageProcessCallback: func(pageNum int, page *model.PdfPage) error {
+			bbox, err := page.GetMediaBox()
+			if err != nil {
+				return err
+			}
+
+			// Zoom in on the page middle, with a scaled width and height.
+			width := (*bbox).Urx - (*bbox).Llx
+			height := (*bbox).Ury - (*bbox).Lly
+			newWidth := width * float64(percentage) / 100.0
+			newHeight := height * float64(percentage) / 100.0
+			(*bbox).Llx += newWidth / 2
+			(*bbox).Lly += newHeight / 2
+			(*bbox).Urx -= newWidth / 2
+			(*bbox).Ury -= newHeight / 2
 
 			page.MediaBox = bbox
 
