@@ -202,6 +202,7 @@ func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string)
 		},
 	}*/
 	percentage := 50
+	_ = percentage
 	opts := &model.ReaderToWriterOpts{
 		PageProcessCallback: func(pageNum int, page *model.PdfPage) error {
 			bbox, err := page.GetMediaBox()
@@ -209,7 +210,11 @@ func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string)
 				return err
 			}
 
-			// Zoom in on the page middle, with a scaled width and height.
+			// Crop from top left corner, so we only change lower left y (lly) and upper right x (urx).
+			(*bbox).Lly = height
+			(*bbox).Urx = width
+
+			/*// Zoom in on the page middle, with a scaled width and height.
 			width := (*bbox).Urx - (*bbox).Llx
 			height := (*bbox).Ury - (*bbox).Lly
 			newWidth := width * float64(percentage) / 100.0
@@ -217,10 +222,9 @@ func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string)
 			(*bbox).Llx += newWidth / 2
 			(*bbox).Lly += newHeight / 2
 			(*bbox).Urx -= newWidth / 2
-			(*bbox).Ury -= newHeight / 2
+			(*bbox).Ury -= newHeight / 2*/
 
 			page.MediaBox = bbox
-
 			return nil
 		},
 	}
