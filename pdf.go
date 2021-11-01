@@ -120,7 +120,7 @@ var (
 func paperSize(code string) ([]float64, error) {
 	m := codeRegex.FindStringSubmatch(strings.ToLower(code))
 	if len(m) == 0 {
-		return nil, fmt.Errorf("invalid paper code")
+		return nil, fmt.Errorf("invalid paper code: %q", code)
 	}
 
 	letter := m[1]
