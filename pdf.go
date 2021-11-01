@@ -114,7 +114,7 @@ var (
 		"a": {66.2, 93.6},
 		"b": {39.4, 55.7},
 	}
-	codeRegex = regexp.MustCompile("$([ab])([0-9])^")
+	codeRegex = regexp.MustCompile("^([ab])([0-9])$")
 )
 
 func paperSize(code string) ([]float64, error) {
