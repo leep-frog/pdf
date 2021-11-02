@@ -13,7 +13,10 @@ import (
 )
 
 var (
+	inputArg     = command.FileNode("INPUT_FILE", "Input file")
+	outputArg    = command.FileNode("OUTPUT_FILE", "Output file")
 	paperSizeArg = command.StringNode("PAPER_SIZE", "New page size")
+	directionArg = command.StringNode("DIRECTION", "How to rotate the image (right, left, around)", command.SimpleCompletor("left", "right", "around"))
 )
 
 func CLI() *PDF {
@@ -46,17 +49,12 @@ func (*PDF) Name() string {
 	return "gdf"
 }
 
-var (
-	input  = command.FileNode("INPUT_FILE", "Input file")
-	output = command.FileNode("OUTPUT_FILE", "Output file")
-)
-
 func (pdf *PDF) Node() *command.Node {
 	return command.BranchNode(map[string]*command.Node{
 		"rotate": command.SerialNodes(
 			command.Description("Rotate each page of the input PDF"),
-			input, output,
-			command.StringNode("direction", "How to rotate the image (right, left, around)", command.SimpleCompletor("left", "right", "around")),
+			inputArg, outputArg,
+			directionArg,
 			command.ExecutorNode(pdf.cliRotate),
 		),
 		"crop": command.SerialNodes(
@@ -64,7 +62,7 @@ func (pdf *PDF) Node() *command.Node {
 			command.NewFlagNode(
 				command.BoolFlag("landscape", 'l', "True if the PAPER_SIZE should be rotated"),
 			),
-			input, output,
+			inputArg, outputArg,
 			paperSizeArg,
 			command.ExecutorNode(pdf.cliCrop),
 		),
@@ -76,13 +74,13 @@ func (pdf *PDF) cliRotate(output command.Output, data *command.Data) error {
 	if err := pdf.initializeClient(); err != nil {
 		return output.Stderrf("failed to initialize pdf client: %v", err)
 	}
-	inputPath := data.String("inputFile")
-	outputPath := data.String("outputFile")
+	inputPath := data.String(inputArg.Name())
+	outputPath := data.String(outputArg.Name())
 
 	var degrees int64
 	// TODO: command package: argument type oneof;
 	// provide map[value]func? or just []value?
-	switch data.String("direction") {
+	switch data.String(directionArg.Name()) {
 	case "right":
 		degrees = 90
 	case "around":
@@ -104,8 +102,8 @@ func (pdf *PDF) cliCrop(output command.Output, data *command.Data) error {
 	if err := pdf.initializeClient(); err != nil {
 		return output.Stderrf("failed to initialize pdf client: %v", err)
 	}
-	inputPath := data.String("inputFile")
-	outputPath := data.String("outputFile")
+	inputPath := data.String(inputArg.Name())
+	outputPath := data.String(outputArg.Name())
 
 	dimensions, err := paperSize(data.String(paperSizeArg.Name()))
 	if err != nil {
