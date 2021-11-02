@@ -17,6 +17,8 @@ var (
 	outputArg    = command.FileNode("OUTPUT_FILE", "Output file")
 	paperSizeArg = command.StringNode("PAPER_SIZE", "New page size")
 	directionArg = command.StringNode("DIRECTION", "How to rotate the image (right, left, around)", command.SimpleCompletor("left", "right", "around"))
+	widthArg     = command.FloatNode("WIDTH", "Width of the pdf in inches")
+	heightArg    = command.FloatNode("HEIGHT", "Height of the pdf in inches")
 )
 
 func CLI() *PDF {
@@ -57,14 +59,25 @@ func (pdf *PDF) Node() *command.Node {
 			directionArg,
 			command.ExecutorNode(pdf.cliRotate),
 		),
-		"crop": command.SerialNodes(
-			command.Description("Crop each page of the input PDF"),
-			command.NewFlagNode(
-				command.BoolFlag("landscape", 'l', "True if the PAPER_SIZE should be rotated"),
+		"crop": command.BranchNode(
+			map[string]*command.Node{
+				"custom": command.SerialNodes(
+					command.Description("Crop each page of the input PDF to custom dimensions"),
+					inputArg, outputArg,
+					widthArg, heightArg,
+					command.ExecutorNode(pdf.customCLICrop),
+				),
+			},
+			command.SerialNodes(
+				command.Description("Crop each page of the input PDF"),
+				command.NewFlagNode(
+					command.BoolFlag("landscape", 'l', "True if the PAPER_SIZE should be rotated"),
+				),
+				inputArg, outputArg,
+				paperSizeArg,
+				command.ExecutorNode(pdf.cliCrop),
 			),
-			inputArg, outputArg,
-			paperSizeArg,
-			command.ExecutorNode(pdf.cliCrop),
+			true,
 		),
 	}, nil, true)
 }
@@ -93,6 +106,19 @@ func (pdf *PDF) cliRotate(output command.Output, data *command.Data) error {
 
 	if err := pdf.Rotate(degrees, inputPath, outputPath); err != nil {
 		return output.Stderrf("failed to rotate pdf: %v", err)
+	}
+	return nil
+}
+
+func (pdf *PDF) customCLICrop(output command.Output, data *command.Data) error {
+	if err := pdf.initializeClient(); err != nil {
+		return output.Stderrf("failed to initialize pdf client: %v", err)
+	}
+	inputPath := data.String(inputArg.Name())
+	outputPath := data.String(outputArg.Name())
+
+	if err := pdf.Crop(data.Float(widthArg.Name()), data.Float(heightArg.Name()), inputPath, outputPath); err != nil {
+		return output.Stderrf("failed to crop pdf: %v", err)
 	}
 	return nil
 }
@@ -129,7 +155,7 @@ var (
 
 func paperSize(code string) ([]float64, error) {
 	if size, ok := keywordSizes[code]; ok {
-		return []float64{size[0] * 72, size[1] * 72}, nil
+		return size, nil
 	}
 
 	m := codeRegex.FindStringSubmatch(strings.ToLower(code))
@@ -154,15 +180,14 @@ func paperSize(code string) ([]float64, error) {
 		size[1] = width
 	}
 
-	// PDF units = 1/72 inches so convert to units.
-	size[0] *= 72
-	size[1] *= 72
-
 	return size, nil
 }
 
 // Example: https://unidoc.io/unipdf-examples/crop-page-content-pdf/
 func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string) error {
+	// PDF units = 1/72 inches so convert to units.
+	width *= 72
+	height *= 72
 	pdfReader, f, err := model.NewPdfReaderFromFile(inputPath, nil)
 	if err != nil {
 		return err
