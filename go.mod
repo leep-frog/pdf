@@ -4,6 +4,6 @@ go 1.16
 
 require (
 	github.com/google/go-cmp v0.5.6 // indirect
-	github.com/leep-frog/command v0.0.0-20211025134435-276d1607ba9b
+	github.com/leep-frog/command v0.0.0-20211102111124-e78ab3935588
 	github.com/unidoc/unipdf/v3 v3.30.0
 )

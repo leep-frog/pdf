@@ -42,21 +42,26 @@ func (*PDF) Name() string {
 	return "gdf"
 }
 
+var (
+	input  = command.FileNode("INPUT_FILE", "Input file")
+	output = command.FileNode("OUTPUT_FILE", "Output file")
+)
+
 func (pdf *PDF) Node() *command.Node {
-	input := command.FileNode("inputFile")
-	output := command.FileNode("outputFile")
 	return command.BranchNode(map[string]*command.Node{
 		"rotate": command.SerialNodes(
+			command.Description("Rotate each page of the input PDF"),
 			input, output,
-			command.StringNode("direction", command.SimpleCompletor("left", "right", "around")),
+			command.StringNode("direction", "How to rotate the image (right, left, around)", command.SimpleCompletor("left", "right", "around")),
 			command.ExecutorNode(pdf.cliRotate),
 		),
 		"crop": command.SerialNodes(
+			command.Description("Crop each page of the input PDF"),
 			input, output,
 			command.NewFlagNode(
-				command.BoolFlag("landscape", 'l'),
+				command.BoolFlag("landscape", 'l', "True if the PAPER_SIZE should be rotated"),
 			),
-			command.StringNode("paperSize"),
+			command.StringNode("PAPER_SIZE", "New page size"),
 			command.ExecutorNode(pdf.cliCrop),
 		),
 	}, nil, true)
@@ -153,35 +158,6 @@ func paperSize(code string) ([]float64, error) {
 
 	return size, nil
 }
-
-/*
-
-Command usage:
-  Run blaze commands
-  z *^
-
-    test blaze targets
-    t *^ TARGET [FUNCTION ...] --abc ABC ABC ... --other
-
-  	build blaze targets
-  	b *^ TARGET
-
-  	run blaze targets
-  	r *^ TARGET
-
-Symbols:
-  *: start of aliasable command
-	^: start of cachable command
-
-Arguments:
-  FUNCTION: ...
-  TARGET: ...
-
-Flags:
-  abc: ...
-	other: ...
-
-*/
 
 // Example: https://unidoc.io/unipdf-examples/crop-page-content-pdf/
 func (pdf *PDF) Crop(width, height float64, inputPath string, outputPath string) error {
