@@ -12,6 +12,10 @@ import (
 	"github.com/unidoc/unipdf/v3/model"
 )
 
+var (
+	paperSizeArg = command.StringNode("PAPER_SIZE", "New page size")
+)
+
 func CLI() *PDF {
 	return &PDF{}
 }
@@ -57,11 +61,11 @@ func (pdf *PDF) Node() *command.Node {
 		),
 		"crop": command.SerialNodes(
 			command.Description("Crop each page of the input PDF"),
-			input, output,
 			command.NewFlagNode(
 				command.BoolFlag("landscape", 'l', "True if the PAPER_SIZE should be rotated"),
 			),
-			command.StringNode("PAPER_SIZE", "New page size"),
+			input, output,
+			paperSizeArg,
 			command.ExecutorNode(pdf.cliCrop),
 		),
 	}, nil, true)
@@ -103,7 +107,7 @@ func (pdf *PDF) cliCrop(output command.Output, data *command.Data) error {
 	inputPath := data.String("inputFile")
 	outputPath := data.String("outputFile")
 
-	dimensions, err := paperSize(data.String("paperSize"))
+	dimensions, err := paperSize(data.String(paperSizeArg.Name()))
 	if err != nil {
 		return output.Err(err)
 	}
