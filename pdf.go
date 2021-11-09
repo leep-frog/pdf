@@ -16,7 +16,7 @@ var (
 	inputArg     = command.FileNode("INPUT_FILE", "Input file")
 	outputArg    = command.FileNode("OUTPUT_FILE", "Output file")
 	paperSizeArg = command.StringNode("PAPER_SIZE", "New page size")
-	directionArg = command.StringNode("DIRECTION", "How to rotate the image (right, left, around)", command.SimpleCompletor("left", "right", "around"))
+	directionArg = command.StringMenu("DIRECTION", "How to rotate the image (right, left, around)", "left", "right", "around")
 	widthArg     = command.FloatNode("WIDTH", "Width of the pdf in inches")
 	heightArg    = command.FloatNode("HEIGHT", "Height of the pdf in inches")
 )
@@ -91,8 +91,6 @@ func (pdf *PDF) cliRotate(output command.Output, data *command.Data) error {
 	outputPath := data.String(outputArg.Name())
 
 	var degrees int64
-	// TODO: command package: argument type oneof;
-	// provide map[value]func? or just []value?
 	switch data.String(directionArg.Name()) {
 	case "right":
 		degrees = 90
@@ -100,8 +98,6 @@ func (pdf *PDF) cliRotate(output command.Output, data *command.Data) error {
 		degrees = 180
 	case "left":
 		degrees = 270
-	default:
-		return output.Stderr("direction must be either right, left, or around")
 	}
 
 	if err := pdf.Rotate(degrees, inputPath, outputPath); err != nil {
