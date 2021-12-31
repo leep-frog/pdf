@@ -57,7 +57,7 @@ func (pdf *PDF) Node() *command.Node {
 			command.Description("Rotate each page of the input PDF"),
 			inputArg, outputArg,
 			directionArg,
-			command.ExecutorNode(pdf.cliRotate),
+			command.ExecuteErrNode(pdf.cliRotate),
 		),
 		"crop": command.BranchNode(
 			map[string]*command.Node{
@@ -65,7 +65,7 @@ func (pdf *PDF) Node() *command.Node {
 					command.Description("Crop each page of the input PDF to custom dimensions"),
 					inputArg, outputArg,
 					widthArg, heightArg,
-					command.ExecutorNode(pdf.customCLICrop),
+					command.ExecuteErrNode(pdf.customCLICrop),
 				),
 			},
 			command.SerialNodes(
