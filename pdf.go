@@ -75,7 +75,7 @@ func (pdf *PDF) Node() *command.Node {
 				),
 				inputArg, outputArg,
 				paperSizeArg,
-				command.ExecutorNode(pdf.cliCrop),
+				command.ExecuteErrNode(pdf.cliCrop),
 			),
 			true,
 		),
