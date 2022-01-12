@@ -77,9 +77,8 @@ func (pdf *PDF) Node() *command.Node {
 				paperSizeArg,
 				command.ExecuteErrNode(pdf.cliCrop),
 			),
-			true,
 		),
-	}, nil, true)
+	}, nil)
 }
 
 // cliRotate is a wrapper around pdf.Rotate that can be used as a CLI executor node.
