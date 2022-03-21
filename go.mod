@@ -3,7 +3,7 @@ module github.com/leep-frog/pdf
 go 1.18
 
 require (
-	github.com/leep-frog/command v0.0.0-20220121191544-e63808c1fae4
+	github.com/leep-frog/command v0.0.0-20220321155643-b85b8463c7fa
 	github.com/unidoc/unipdf/v3 v3.30.0
 )
 
@@ -18,8 +18,9 @@ require (
 	github.com/unidoc/timestamp v0.0.0-20200412005513-91597fd3793a // indirect
 	github.com/unidoc/unitype v0.2.1 // indirect
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0 // indirect
+	golang.org/x/exp v0.0.0-20220321124402-2d6d886f8a82 // indirect
 	golang.org/x/image v0.0.0-20200927104501-e162460cd6b5 // indirect
-	golang.org/x/sys v0.0.0-20200413165638-669c56c373c4 // indirect
+	golang.org/x/sys v0.0.0-20211019181941-9d821ace8654 // indirect
 	golang.org/x/text v0.3.3 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
