@@ -44,9 +44,8 @@ func (pdf *PDF) initializeClient() error {
 	return nil
 }
 
-func (*PDF) Load(jsn string) error { return nil }
-func (*PDF) Changed() bool         { return false }
-func (*PDF) Setup() []string       { return nil }
+func (*PDF) Changed() bool   { return false }
+func (*PDF) Setup() []string { return nil }
 func (*PDF) Name() string {
 	return "gdf"
 }
