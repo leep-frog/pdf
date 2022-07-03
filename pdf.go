@@ -83,7 +83,7 @@ func (pdf *PDF) Node() *command.Node {
 // cliRotate is a wrapper around pdf.Rotate that can be used as a CLI executor node.
 func (pdf *PDF) cliRotate(output command.Output, data *command.Data) error {
 	if err := pdf.initializeClient(); err != nil {
-		return output.Stderrf("failed to initialize pdf client: %v", err)
+		return output.Stderrf("failed to initialize pdf client: %v\n", err)
 	}
 	inputPath := data.String(inputArg.Name())
 	outputPath := data.String(outputArg.Name())
@@ -99,20 +99,20 @@ func (pdf *PDF) cliRotate(output command.Output, data *command.Data) error {
 	}
 
 	if err := pdf.Rotate(degrees, inputPath, outputPath); err != nil {
-		return output.Stderrf("failed to rotate pdf: %v", err)
+		return output.Stderrf("failed to rotate pdf: %v\n", err)
 	}
 	return nil
 }
 
 func (pdf *PDF) customCLICrop(output command.Output, data *command.Data) error {
 	if err := pdf.initializeClient(); err != nil {
-		return output.Stderrf("failed to initialize pdf client: %v", err)
+		return output.Stderrf("failed to initialize pdf client: %v\n", err)
 	}
 	inputPath := data.String(inputArg.Name())
 	outputPath := data.String(outputArg.Name())
 
 	if err := pdf.Crop(data.Float(widthArg.Name()), data.Float(heightArg.Name()), inputPath, outputPath); err != nil {
-		return output.Stderrf("failed to crop pdf: %v", err)
+		return output.Stderrf("failed to crop pdf: %v\n", err)
 	}
 	return nil
 }
@@ -120,7 +120,7 @@ func (pdf *PDF) customCLICrop(output command.Output, data *command.Data) error {
 // cliCrop is a wrapper around pdf.Crop that can be used as a CLI executor node.
 func (pdf *PDF) cliCrop(output command.Output, data *command.Data) error {
 	if err := pdf.initializeClient(); err != nil {
-		return output.Stderrf("failed to initialize pdf client: %v", err)
+		return output.Stderrf("failed to initialize pdf client: %v\n", err)
 	}
 	inputPath := data.String(inputArg.Name())
 	outputPath := data.String(outputArg.Name())
@@ -131,7 +131,7 @@ func (pdf *PDF) cliCrop(output command.Output, data *command.Data) error {
 	}
 
 	if err := pdf.Crop(dimensions[0], dimensions[1], inputPath, outputPath); err != nil {
-		return output.Stderrf("failed to crop pdf: %v", err)
+		return output.Stderrf("failed to crop pdf: %v\n", err)
 	}
 	return nil
 }
