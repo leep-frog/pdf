@@ -3,7 +3,7 @@ module github.com/leep-frog/pdf
 go 1.18
 
 require (
-	github.com/leep-frog/command v0.0.0-20220703003206-38c5f98782cb
+	github.com/leep-frog/command v0.0.0-20220815170834-6e76544ce90b
 	github.com/unidoc/unipdf/v3 v3.30.0
 )
 

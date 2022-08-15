@@ -16,7 +16,7 @@ var (
 	inputArg     = command.FileNode("INPUT_FILE", "Input file")
 	outputArg    = command.FileNode("OUTPUT_FILE", "Output file")
 	paperSizeArg = command.Arg[string]("PAPER_SIZE", "New page size")
-	directionArg = command.StringMenu("DIRECTION", "How to rotate the image (right, left, around)", "left", "right", "around")
+	directionArg = command.MenuArg("DIRECTION", "How to rotate the image (right, left, around)", "left", "right", "around")
 	widthArg     = command.Arg[float64]("WIDTH", "Width of the pdf in inches")
 	heightArg    = command.Arg[float64]("HEIGHT", "Height of the pdf in inches")
 )
