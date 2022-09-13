@@ -51,33 +51,35 @@ func (*PDF) Name() string {
 }
 
 func (pdf *PDF) Node() *command.Node {
-	return command.BranchNode(map[string]*command.Node{
-		"rotate": command.SerialNodes(
-			command.Description("Rotate each page of the input PDF"),
-			inputArg, outputArg,
-			directionArg,
-			command.ExecuteErrNode(pdf.cliRotate),
-		),
-		"crop": command.BranchNode(
-			map[string]*command.Node{
-				"custom": command.SerialNodes(
-					command.Description("Crop each page of the input PDF to custom dimensions"),
-					inputArg, outputArg,
-					widthArg, heightArg,
-					command.ExecuteErrNode(pdf.customCLICrop),
-				),
-			},
-			command.SerialNodes(
-				command.Description("Crop each page of the input PDF"),
-				command.NewFlagNode(
-					command.BoolFlag("landscape", 'l', "True if the PAPER_SIZE should be rotated"),
-				),
+	return command.AsNode(&command.BranchNode{
+		Branches: map[string]*command.Node{
+			"rotate": command.SerialNodes(
+				command.Description("Rotate each page of the input PDF"),
 				inputArg, outputArg,
-				paperSizeArg,
-				command.ExecuteErrNode(pdf.cliCrop),
+				directionArg,
+				&command.ExecutorProcessor{F: pdf.cliRotate},
 			),
-		),
-	}, nil)
+			"crop": command.AsNode(&command.BranchNode{
+				Branches: map[string]*command.Node{
+					"custom": command.SerialNodes(
+						command.Description("Crop each page of the input PDF to custom dimensions"),
+						inputArg, outputArg,
+						widthArg, heightArg,
+						&command.ExecutorProcessor{F: pdf.customCLICrop},
+					),
+				},
+				Default: command.SerialNodes(
+					command.Description("Crop each page of the input PDF"),
+					command.FlagNode(
+						command.BoolFlag("landscape", 'l', "True if the PAPER_SIZE should be rotated"),
+					),
+					inputArg, outputArg,
+					paperSizeArg,
+					&command.ExecutorProcessor{F: pdf.cliCrop},
+				),
+			}),
+		},
+	})
 }
 
 // cliRotate is a wrapper around pdf.Rotate that can be used as a CLI executor node.
