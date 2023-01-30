@@ -50,17 +50,17 @@ func (*PDF) Name() string {
 	return "gdf"
 }
 
-func (pdf *PDF) Node() *command.Node {
-	return command.AsNode(&command.BranchNode{
-		Branches: map[string]*command.Node{
+func (pdf *PDF) Node() command.Node {
+	return &command.BranchNode{
+		Branches: map[string]command.Node{
 			"rotate": command.SerialNodes(
 				command.Description("Rotate each page of the input PDF"),
 				inputArg, outputArg,
 				directionArg,
 				&command.ExecutorProcessor{F: pdf.cliRotate},
 			),
-			"crop": command.AsNode(&command.BranchNode{
-				Branches: map[string]*command.Node{
+			"crop": &command.BranchNode{
+				Branches: map[string]command.Node{
 					"custom": command.SerialNodes(
 						command.Description("Crop each page of the input PDF to custom dimensions"),
 						inputArg, outputArg,
@@ -77,9 +77,9 @@ func (pdf *PDF) Node() *command.Node {
 					paperSizeArg,
 					&command.ExecutorProcessor{F: pdf.cliCrop},
 				),
-			}),
+			},
 		},
-	})
+	}
 }
 
 // cliRotate is a wrapper around pdf.Rotate that can be used as a CLI executor node.
