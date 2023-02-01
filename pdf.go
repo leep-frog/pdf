@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	inputArg     = command.FileNode("INPUT_FILE", "Input file")
-	outputArg    = command.FileNode("OUTPUT_FILE", "Output file")
+	inputArg     = command.FileArgument("INPUT_FILE", "Input file")
+	outputArg    = command.FileArgument("OUTPUT_FILE", "Output file")
 	paperSizeArg = command.Arg[string]("PAPER_SIZE", "New page size")
 	directionArg = command.MenuArg("DIRECTION", "How to rotate the image (right, left, around)", "left", "right", "around")
 	widthArg     = command.Arg[float64]("WIDTH", "Width of the pdf in inches")

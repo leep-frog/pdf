@@ -38,6 +38,8 @@ github.com/leep-frog/command v0.0.0-20230130194339-5192720eb044 h1:3kgCI/oXKrpm8
 github.com/leep-frog/command v0.0.0-20230130194339-5192720eb044/go.mod h1:Rd1Wj9R6mxmO2cPMosUt72SwGFr68HOdykDbwVMwWE4=
 github.com/leep-frog/command v0.0.0-20230201141701-15642cfdf7b3 h1:3T1ChNcxCPkS8O+j0ISLreBZHw3/gyLVhPPL+yiBrpY=
 github.com/leep-frog/command v0.0.0-20230201141701-15642cfdf7b3/go.mod h1:Rd1Wj9R6mxmO2cPMosUt72SwGFr68HOdykDbwVMwWE4=
+github.com/leep-frog/command v0.0.0-20230201152427-33dee6ca6e87 h1:EXM2PkZGIyGsGy+KOjgnPDHNuuTFRoMj8tgSb9CujW8=
+github.com/leep-frog/command v0.0.0-20230201152427-33dee6ca6e87/go.mod h1:Rd1Wj9R6mxmO2cPMosUt72SwGFr68HOdykDbwVMwWE4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/sirupsen/logrus v1.5.0 h1:1N5EYkVAPEywqZRJd7cwnRtCb6xJx7NH3T3WUTF980Q=
