@@ -70,7 +70,7 @@ func (pdf *PDF) Node() command.Node {
 				},
 				Default: command.SerialNodes(
 					command.Description("Crop each page of the input PDF"),
-					command.FlagNode(
+					command.FlagProcessor(
 						command.BoolFlag("landscape", 'l', "True if the PAPER_SIZE should be rotated"),
 					),
 					inputArg, outputArg,
